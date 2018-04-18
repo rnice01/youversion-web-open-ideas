@@ -4,6 +4,8 @@ import { Helmet } from 'react-helmet'
 import Card from '@youversion/melos/dist/components/containers/Card'
 import Title from '@youversion/melos/dist/components/typography/Heading1'
 import Body from '@youversion/melos/dist/components/typography/Body'
+import Theme from '@youversion/melos/dist/components/themes/Theme'
+import ButtonStroke from '@youversion/melos/dist/components/links/ButtonStroke'
 import { videoDetailsJson } from '../../api/video-api-mock'
 
 const VIDEO_PLAYING = 0
@@ -32,6 +34,7 @@ class VideoContainer extends React.Component {
 			video: {},
 			playbackState: VIDEO_STOPPED
 		}
+
 		this.videoRef = React.createRef()
 		this.playVideo = this.playVideo.bind(this)
 		this.pauseVideo = this.pauseVideo.bind(this)
@@ -69,9 +72,13 @@ class VideoContainer extends React.Component {
 				</Helmet>
 				<Card>
 					<Title>{video.title}</Title>
-					<Video {...this} {...this.state} />
-					<VideoControls {...this } {...this.state} />
-					<Body>{video.publisher.description}</Body>
+					<div style={{position: 'relative'}}>
+						<Video {...this} {...this.state} />
+						<VideoControls {...this } {...this.state} />
+					</div>
+					<Body>
+						{video.publisher.description}
+					</Body>
 				</Card>
 			</div>
 		)
@@ -107,6 +114,7 @@ const videoStyles = {
 	}
 }
 
+
 const Video = ({
 	playVideo, playbackState, video, videoRef
 }) => {
@@ -135,16 +143,34 @@ Video.propTypes = {
 	}).isRequired
 }
 
+const videoControlsStyles = {
+	container: {
+		width: '100%',
+		position: 'absolute',
+		bottom: '0',
+		left: '0'
+	},
+	progressBar: {
+		width: '100%'
+	}
+}
+
 const VideoControls = ({ playVideo, pauseVideo, playbackState }) => {
-	const playPause = playbackState === VIDEO_PLAYING ? pauseVideo : playVideo
+	if (playbackState === VIDEO_STOPPED) {
+		return null
+	}
+
+	const playPauseButton = playbackState === VIDEO_PLAYING ?
+		<button type="button" onClick={pauseVideo}>pause</button> :
+		<button type="button" onClick={playVideo}>play</button>
 	return (
-		<div>
-			<button id="playpause" type="button" onClick={playPause}>Play/Pause</button>
-			<div className="progress">
+		<div style={videoControlsStyles.container}>
+			<div style={videoControlsStyles.progressBar}>
 				<progress id="progress" value="0" min="0">
 					<span id="progress-bar" />
 				</progress>
 			</div>
+			{playPauseButton}
 			<button id="mute" type="button" data-state="mute">Mute/Unmute</button>
 			<button id="volinc" type="button" data-state="volup">Vol+</button>
 			<button id="voldec" type="button" data-state="voldown">Vol-</button>
